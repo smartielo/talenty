@@ -1,6 +1,6 @@
 # Talenty – Plataforma de freelas para estudantes
 
-> Projeto final das disciplinas **Aplicações Digitais**, **Prática em Banco de Dados** e **Empreendedorismo**(4º semestre, Ciência da Computação – UNISAGRADO, 2º semestre de 2026).
+> Projeto final das disciplinas **Aplicações Digitais**, **Prática em Banco de Dados** e **Empreendedorismo** (4º semestre, Ciência da Computação – UNISAGRADO, 2º semestre de 2026).
 
 **Integrantes:** Gabriel Martielo e João Diniz
 
