@@ -393,7 +393,7 @@ As exigências conhecidas anteriormente para Aplicações Digitais incluíam API
 
 > Rascunho a ser revisado pelos integrantes antes da entrega. Registrar ferramentas, modelos exatos e contribuições conforme realmente utilizadas.
 
-**Ferramentas identificadas até aqui:** Claude (Anthropic; modelo exato a conferir) e ChatGPT (OpenAI; modelo exato a conferir para cada uso).
+**Ferramentas identificadas até aqui:** Claude (Anthropic) e ChatGPT (OpenAI(Codex e ChatGPT)).
 
 **Atividades com apoio de IA:**
 
