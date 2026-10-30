@@ -1,0 +1,12 @@
+import Icon from '../Icon.jsx';
+
+export default function ServiceArtwork({ type }) {
+  return <div className={`service-art art-${type}`} aria-hidden="true">
+    {type === 'brand' && <><span className="art-overline">IDENTIDADE QUE FLORESCE</span><div className="art-brand-name">flora<span>✳</span></div><span className="art-brand-caption">naturalmente, a sua marca.</span><div className="art-color-dots"><i /><i /><i /><i /></div><span className="art-corner-note">Branding & identidade visual ↗</span></>}
+    {type === 'website' && <><div className="art-browser"><div className="art-browser-bar"><span>● ● ●</span><span>seuproximopasso.com.br</span></div><div className="art-site"><span className="art-site-nav">pedro.design <span>projetos ↗</span></span><div className="art-site-body"><div><span>IDEIAS QUE VIRAM REALIDADE</span><strong>Teu trabalho.<br />Teu espaço.</strong><span className="art-site-button">Conheça meus projetos ↗</span></div><div className="art-site-shape">✳</div></div></div></div><span className="art-corner-note">Seu portfólio, em outro nível.</span></>}
+    {type === 'math' && <><span className="art-overline">BORA DESCOMPLICAR?</span><strong className="art-math-title">O limite<br />é só o começo.</strong><span className="art-formula">∫ x² dx = x³/3 + C</span><span className="art-math-sticker">cálculo sem pânico ✦</span></>}
+    {type === 'text' && <><div className="art-paper"><span>TEU TEXTO, MAIS CLARO.</span><strong>Boas ideias<br />merecem boas<br /><em>palavras.</em></strong><div /><div /><div /></div><span className="art-pencil"><Icon name="pen" /></span><span className="art-corner-note">Revisão · Clareza · ABNT</span></>}
+    {type === 'video' && <><span className="art-overline">TEU CONTEÚDO EM MOVIMENTO</span><div className="art-video-frames"><span>cria.</span><span>grava.<i>▶</i></span><span>conecta.</span></div><span className="art-video-caption">pequenos vídeos. grandes histórias. ↗</span></>}
+    {type === 'data' && <><span className="art-overline">CADA DADO TEM UMA HISTÓRIA.</span><div className="art-dashboard"><div className="art-dashboard-header"><span>Meu próximo passo</span><Icon name="chart" /></div><div className="art-dashboard-metrics"><span>Entradas<strong>R$ 2.450</strong></span><span>Metas<strong>85% ↗</strong></span></div><div className="art-bars"><i /><i /><i /><i /><i /><i /><i /></div></div><span className="art-corner-note">Organiza os dados. Simplifica a vida.</span></>}
+  </div>;
+}

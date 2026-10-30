@@ -30,7 +30,7 @@ export default function NotFound() {
         <p>O link pode ter mudado ou a página não existe mais. Mas teu próximo freela pode estar logo ali.</p>
         <div className="not-found-actions">
           <a className="button button-primary" href="/">Voltar para o início <span aria-hidden="true">↗</span></a>
-          <a className="button button-outline" href="/#categorias">Explorar freelas</a>
+          <a className="button button-outline" href="/home">Explorar freelas</a>
         </div>
       </main>
 
