@@ -1,0 +1,11 @@
+{
+  "score": 5,
+  "summary": "Revisão estática do perímetro servidor-exclusivo: nenhuma leitura ou escrita direta por cliente é autorizada, mesmo para usuários autenticados ou subcoleções. Regras compiladas na publicação. Não avalia IAM, credenciais administrativas ou a futura API; não equivale a teste de invasão nem garantia de segurança da aplicação.",
+  "findings": [],
+  "scope": "Somente firebase/firestore.rules. Validadores de create/update não se aplicam porque nenhuma escrita por cliente é permitida.",
+  "follow_up": [
+    "Validar a autorização, tipos, limites, propriedade, papéis e transições na API antes de expor endpoints.",
+    "Executar testes de integração de concorrência, unicidade e atomicidade no emulador.",
+    "Revisar regras e credenciais IAM antes de uma divulgação ampla."
+  ]
+}

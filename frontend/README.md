@@ -58,6 +58,8 @@ Os perfis, depoimentos, preços, avaliações e números do feed são ilustrativ
 
 ## Ativar login, cadastro e recuperação de senha
 
+O projeto `talenty-3e8cb` já tem o app web `Talenty Web` e o provedor de e-mail/senha habilitado. Neste computador, `frontend/.env.local` já foi preenchido com a configuração pública do app. Reinicie o Vite se ele estava aberto antes dessa configuração. A conta criada pertence ao Authentication; a criação/sincronização de `usuarios/{uid}` e do perfil de prestador ainda depende da API. O banco e seus arquivos estão documentados em [docs/firestore-modelo.md](../docs/firestore-modelo.md).
+
 1. No projeto Firebase do grupo, registre um aplicativo web e ative **Authentication → Sign-in method → E-mail/senha**.
 2. Copie `frontend/.env.example` para `frontend/.env.local` e preencha os quatro campos `VITE_FIREBASE_*` com a configuração pública do aplicativo web.
 3. Reinicie o Vite para carregar as variáveis. Cadastre uma conta de teste pela interface e confira a criação em **Authentication → Users**.

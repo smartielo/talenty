@@ -1,0 +1,16 @@
+rules_version = '2';
+// Protótipo para a arquitetura servidor-exclusivo; modelo em docs/firestore-modelo.md.
+// Coleções: instituicoes, usuarios/{uid}, perfis_prestadores/{uid}, categorias,
+// tipos_servico, servicos, pedidos, pagamentos/{pedido_id}, avaliacoes/{pedido_id}, mensagens.
+// Não há exceções para usuários autenticados, donos, administradores ou subcoleções.
+// Senhas pertencem ao Firebase Authentication; nunca aos documentos do Firestore.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Acesso aos dados somente pela FastAPI com Firebase Admin SDK.
+    // Admin SDK usa IAM e não é limitado por estas regras.
+    // A API deve validar identidade, permissões, tipos, limites e transições.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

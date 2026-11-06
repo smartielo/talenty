@@ -6,10 +6,10 @@
 
 **Integrantes:** Gabriel Martielo e João Diniz  
 **Entrega de Aplicações Digitais:** 15/11/2026  
-**Prática em Banco de Dados:** confirmar com o professor se a entrega anterior foi dispensada ou teve seus requisitos alterados (prazo anteriormente informado: 01/12/2026, Turma A).
+**Prática em Banco de Dados:** registrar o formato e o prazo da entrega conforme a orientação do professor (prazo anteriormente informado: 01/12/2026, Turma A).
 
-> [!IMPORTANT]
-> **Pendência acadêmica:** os requisitos recebidos inicialmente exigiam banco relacional, SQL/DML e, em Aplicações Digitais, API própria, controle de acesso e autenticação com hash. A decisão de usar somente Firebase **não significa, por si só, que a substituição do MySQL/SQL foi autorizada pelos professores**. Confirmar expressamente a dispensa ou a mudança de escopo, especialmente em Prática em Banco de Dados, e registrar a orientação recebida.
+> [!NOTE]
+> **Arquitetura autorizada pelo professor:** em atualização registrada em **05/11/2026**, os integrantes informaram que conversaram com o professor e receberam autorização para seguir com **Firebase Authentication e Cloud Firestore**, mantendo **React + Vite e API própria em FastAPI**. O projeto seguirá sem MySQL e sem implementação própria de armazenamento de senhas. A API continua responsável pela verificação dos tokens, pelo controle de acesso e pelas regras de negócio.
 
 ---
 
@@ -47,6 +47,8 @@ O **Talenty** conecta esses públicos: universitários anunciam serviços (sites
 **Atenção:** embora o site e a API rodem no computador, **Firebase Authentication e Cloud Firestore são serviços em nuvem**. Na execução normal, é necessário acesso à internet. Emuladores locais do Firebase podem ser usados para desenvolvimento e testes, mas não substituem automaticamente a configuração real.
 
 ## 3. Arquitetura
+
+**Configuração realizada em 05/11/2026:** projeto `talenty-3e8cb`, app web `Talenty Web`, Authentication com e-mail/senha e banco Firestore `(default)` Standard em São Paulo (`southamerica-east1`). O faturamento não foi ativado. A configuração local do React está em `frontend/.env.local`; regras e índices ficam em `firebase/`. Veja o [modelo das coleções, seed e instruções](docs/firestore-modelo.md). O banco real ainda não recebeu os dados fictícios do seed, e o feed continua demonstrativo.
 
 ```text
                     COMPUTADOR LOCAL
@@ -102,8 +104,7 @@ talenty/
 │   │   ├── components/
 │   │   ├── pages/
 │   │   ├── contexts/
-│   │   ├── services/               # Chamadas HTTP à API
-│   │   └── firebase/               # Configuração do SDK cliente de Auth
+│   │   └── services/               # SDK cliente de Auth e chamadas HTTP à API
 │   ├── package.json
 │   └── .env.example
 ├── firebase/
@@ -112,7 +113,7 @@ talenty/
 └── README.md
 ```
 
-*Estrutura planejada: os diretórios e arquivos ainda precisam ser implementados.*
+*Estrutura de referência: o front-end, a inicialização do Admin SDK, os exemplos de transações, o seed e as regras/índices do Firestore já existem. Os endpoints da API e a integração do feed com os dados reais ainda precisam ser implementados. Consulte também o [README do backend](backend/README.md).*
 
 ## 4. Modelagem de dados no Cloud Firestore
 
@@ -146,7 +147,7 @@ Não há coleção `clientes`: um mesmo usuário pode contratar serviços e ser 
 - Os valores do pagamento devem satisfazer `valor_total = valor_comissao + valor_prestador`, com regra consistente de arredondamento monetário.
 - Operações que precisam ser atômicas usam **transações do Firestore**.
 - Consultas combinadas por cidade, instituição e categoria podem exigir **índices compostos** e ajustes no modelo; essa busca deve ser testada com dados reais de exemplo.
-- Os scripts SQL anteriores ficam **fora do desenvolvimento atual**. Caso o professor exija novamente SQL ou DML, será necessário um plano separado.
+- Os scripts SQL anteriores ficam **fora do desenvolvimento atual**, conforme a arquitetura com Firebase autorizada pelo professor.
 
 ## 5. Regras de negócio
 
@@ -184,7 +185,7 @@ A API permitirá apenas transições coerentes e autorizadas para cada participa
 5. **Autorização:** a API consulta e valida o perfil/papel do usuário no Firestore antes de permitir operações restritas.
 6. **Senha:** gerenciada pelo Firebase Authentication; **não é gravada no Firestore nem manipulada diretamente pela nossa API**.
 
-**Nota:** o Firebase Authentication substitui a implementação própria de hash com bcrypt/JWT prevista anteriormente. Confirmar que essa substituição é aceita na avaliação de Aplicações Digitais.
+**Decisão autorizada:** o Firebase Authentication substitui o gerenciamento próprio de senhas e a emissão própria de tokens previstos anteriormente. O back-end continua verificando os Firebase ID tokens e aplicando as permissões; a autorização do professor para essa arquitetura foi informada pelos integrantes e registrada neste README em 05/11/2026.
 
 ### Segurança
 
@@ -222,7 +223,7 @@ Swagger/OpenAPI: **http://localhost:8000/docs**, após iniciar o back-end.
 | Avaliações | `POST /pedidos/{id}/avaliacao` | Cliente autorizado |
 | Mensagens | `GET /pedidos/{id}/mensagens`, `POST /pedidos/{id}/mensagens` | Somente envolvidos; opcional no fim |
 
-A API oferece métodos **GET, POST, PUT/PATCH e DELETE**, com validação, tratamento de erros e códigos HTTP adequados. O login/cadastro ocorre no Firebase; portanto, os endpoints antigos `POST /auth/cadastro` e `POST /auth/login` não são necessários nesta proposta.
+A API oferecerá métodos **GET, POST, PUT/PATCH e DELETE**, com validação, tratamento de erros e códigos HTTP adequados. O login/cadastro ocorre no Firebase; portanto, os endpoints antigos `POST /auth/cadastro` e `POST /auth/login` não são necessários nesta proposta.
 
 ## 9. Testes automatizados
 
@@ -269,6 +270,8 @@ pytest
 6. Adicionar `localhost` aos domínios autorizados do Authentication, se necessário para o ambiente de desenvolvimento.
 
 ### Passo 2 – Back-end FastAPI
+
+**Etapa ainda planejada:** a base do Admin SDK e os exemplos de transações já existem, mas `app/main.py` e os endpoints ainda não foram implementados. O comando Uvicorn abaixo só poderá ser usado após essa implementação. Consulte o [README do backend](backend/README.md) para preparar o ambiente atual.
 
 No terminal, na pasta `backend/`:
 
@@ -337,7 +340,7 @@ VITE_FIREBASE_PROJECT_ID=seu-projeto-firebase
 VITE_FIREBASE_APP_ID=id-publico-do-app-web
 ```
 
-A interface deverá abrir em **http://localhost:5173** (ou na porta indicada pelo Vite). O exemplo acima é um planejamento: os arquivos de configuração e o código ainda precisam ser criados.
+A interface abre no endereço indicado pelo Vite, normalmente **http://127.0.0.1:5173**. As telas e o arquivo `frontend/.env.example` já existem. O login, o cadastro e a recuperação de senha estão preparados para o SDK do Firebase, mas precisam da configuração real do projeto para validação. O feed ainda usa dados ilustrativos; sua integração com a API e o Firestore está pendente. Consulte também o [README do front-end](frontend/README.md).
 
 ### Primeiro acesso
 
@@ -360,34 +363,37 @@ A interface deverá abrir em **http://localhost:5173** (ou na porta indicada pel
 
 **Prioridade para 15/11/2026:** autenticação, catálogo/serviços, pedidos, pagamento simulado, avaliação, admin, testes e documentação. Em caso de atraso, reduzir primeiro chat e notificações externas, sem eliminar os requisitos essenciais da disciplina.
 
-### Situação atual (29/10/2026)
+### Situação atual (05/11/2026)
 
 - [x] Ideia, objetivos e regras gerais do Talenty definidos.
-- [x] Arquitetura **escolhida**: Firebase Authentication + Firestore + FastAPI + React local.
-- [x] README atualizado para a arquitetura escolhida.
-- [ ] Confirmar com os professores a alteração/dispensa dos requisitos de SQL e da autenticação própria.
-- [ ] Criar e configurar o projeto no Firebase.
+- [x] Arquitetura **escolhida e autorizada pelo professor**: Firebase Authentication + Cloud Firestore + FastAPI + React local.
+- [x] Autorização informada pelos integrantes e registrada neste README em 05/11/2026.
+- [x] Telas de apresentação, login/cadastro, recuperação de senha, feed de demonstração e 404 implementadas em React.
+- [x] Login, cadastro e recuperação de senha preparados para integração com Firebase Authentication.
+- [x] Registrar o app web e configurar Firebase Authentication e Cloud Firestore em `talenty-3e8cb`.
+- [x] Preparar regras, índices, documentação das coleções, seed e exemplos de transações.
+- [x] Validar o build do front-end e os testes unitários do modelo/seed e das regras de domínio.
 - [ ] Implementar API FastAPI, Firebase Admin SDK e validações.
-- [ ] Implementar telas em React e integração com Authentication/API.
-- [ ] Criar coleções e índices necessários no Firestore.
+- [ ] Validar a autenticação com o projeto Firebase real e integrar o front-end à API.
+- [ ] Aplicar o catálogo desejado no Firestore e validar as consultas com dados reais.
 - [ ] Implementar testes automatizados e testar fluxo completo.
 - [ ] Documentar resultados, capturas, endpoints e evidências de testes.
 
 Os scripts e a modelagem SQL produzidos anteriormente **não fazem parte da implementação atual** e não devem ser apresentados como recursos em execução no Firebase.
 
-## 12. Pontos acadêmicos a confirmar
+## 12. Autorização acadêmica e escopo aprovado
 
 As exigências conhecidas anteriormente para Aplicações Digitais incluíam API própria, CRUD, rotas protegidas, testes e banco relacional. Para Prática em Banco de Dados, incluíam modelagem relacional e comandos `INSERT`, `UPDATE`, `DELETE`, com comprovação de transação em SQL.
 
-**Confirmar antes da entrega:**
+**Registro da autorização (atualizado em 05/11/2026):** os integrantes relataram que conversaram com o professor e que ele autorizou a adoção da arquitetura com Firebase Authentication e Cloud Firestore. Com essa orientação, a decisão do projeto é:
 
-1. **Prática em Banco de Dados:** a disciplina deixou de exigir a entrega ou autorizou formalmente uma entrega usando Firestore sem SQL? Em caso afirmativo, qual será o formato exigido?
-2. **Aplicações Digitais:** o professor aceita Firestore no lugar de banco relacional?
-3. **Autenticação:** o Firebase Authentication substitui satisfatoriamente a implementação própria de hash de senha e JWT? A API continuará validando tokens e controlando permissões.
-4. **Acesso ao banco:** a proposta manterá o Firestore acessível somente pela API para as operações de dados, conforme o requisito de arquitetura original.
-5. **Execução local:** confirmar apenas se a apresentação exige rede/internet ou se será necessário preparar os emuladores do Firebase como alternativa.
+1. **Banco de dados:** usar Cloud Firestore; MySQL e scripts SQL não fazem parte da implementação atual.
+2. **Autenticação:** usar Firebase Authentication para cadastro, login, recuperação de senha e emissão de ID tokens.
+3. **API própria:** manter a FastAPI para verificar os tokens e aplicar autorização, validações e regras de negócio.
+4. **Acesso aos dados:** realizar as operações no Firestore exclusivamente pela API, com o Firebase Admin SDK.
+5. **Execução e pagamento:** executar React e FastAPI localmente, com serviços Firebase em nuvem e pagamentos simulados.
 
-**Decisão do grupo:** seguir com Firebase para tudo, **sem MySQL nem scripts SQL no sistema**. **Status acadêmico:** confirmação dos professores ainda não documentada neste README.
+**Status acadêmico:** a autorização para a arquitetura está registrada com base no relato dos integrantes. Este registro não declara dispensa de uma disciplina ou de sua entrega. O formato, o prazo e as evidências da apresentação devem acompanhar a orientação recebida do professor.
 
 ## 13. Declaração de uso de Inteligência Artificial
 
@@ -405,11 +411,11 @@ As exigências conhecidas anteriormente para Aplicações Digitais incluíam API
 
 **Limitações, mudanças e correções observadas:**
 
-- Houve uma proposta inicial com MySQL, JWT próprio e bcrypt; o grupo decidiu migrar o sistema para Firebase Authentication e Cloud Firestore. O conteúdo do README foi ajustado, mas a migração ainda precisará ser implementada e validada.
+- Houve uma proposta inicial com MySQL, JWT próprio e bcrypt; o grupo decidiu usar Firebase Authentication e Cloud Firestore e informou a autorização do professor. O front-end está preparado para autenticação com Firebase; a configuração real, a API e a persistência ainda precisam ser implementadas ou validadas.
 - Os scripts SQL anteriores foram testados em MariaDB 10.11, não em MySQL 8; agora estão fora do escopo de implementação escolhido.
 - Os hashes de senha dos dados SQL de exemplo eram fictícios e não serviam para login real; esses dados não serão usados na autenticação Firebase.
 - Uma resposta anterior da IA confundiu a ordem de datas de entrega das disciplinas; o grupo corrigiu a informação.
-- A compatibilidade acadêmica da nova arquitetura com exigências anteriores **ainda deve ser confirmada pelos professores**.
+- A autorização do professor para a arquitetura foi informada pelos integrantes e registrada neste README em 05/11/2026.
 
 **A completar no fim:** dificuldades técnicas, erros reais apresentados pela IA, o que os integrantes corrigiram manualmente, evidências dos testes e avaliação da contribuição da IA.
 

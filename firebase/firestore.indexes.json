@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    { "collectionGroup": "servicos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "ativo", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "servicos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "ativo", "order": "ASCENDING" }, { "fieldPath": "categoria_id", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "servicos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "ativo", "order": "ASCENDING" }, { "fieldPath": "categoria_id", "order": "ASCENDING" }, { "fieldPath": "cidade", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "servicos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "ativo", "order": "ASCENDING" }, { "fieldPath": "instituicao_id", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "servicos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "prestador_uid", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "pedidos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "cliente_uid", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "pedidos", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "prestador_uid", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "avaliacoes", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "prestador_uid", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "DESCENDING" }] },
+    { "collectionGroup": "mensagens", "queryScope": "COLLECTION", "fields": [{ "fieldPath": "pedido_id", "order": "ASCENDING" }, { "fieldPath": "criado_em", "order": "ASCENDING" }] }
+  ],
+  "fieldOverrides": [
+    { "collectionGroup": "servicos", "fieldPath": "descricao", "indexes": [] },
+    { "collectionGroup": "mensagens", "fieldPath": "texto", "indexes": [] },
+    { "collectionGroup": "avaliacoes", "fieldPath": "comentario", "indexes": [] },
+    { "collectionGroup": "perfis_prestadores", "fieldPath": "bio", "indexes": [] }
+  ]
+}
