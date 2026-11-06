@@ -11,7 +11,7 @@
 - Configuração pública do React: `frontend/.env.local`, ignorado pelo Git.
 - Regras e índices: `firebase/firestore.rules` e `firebase/firestore.indexes.json`.
 
-O Firestore não possui um comando equivalente a `CREATE TABLE`: as coleções aparecem quando recebem documentos. O banco foi provisionado, mas o seed não foi aplicado na nuvem. O feed do React ainda apresenta os exemplos locais.
+O Firestore não possui um comando equivalente a `CREATE TABLE`: as coleções aparecem quando recebem documentos. O banco recebeu o catálogo inicial de 15 documentos (instituições, categorias e tipos), sem usuários ou serviços fictícios. O feed do React consulta os anúncios reais pela API.
 
 ## Arquitetura e segurança
 
@@ -228,7 +228,7 @@ Em `backend/app/services/pedidos.py`:
 - `aprovar_entrega`: exige cliente do pedido, status ENTREGUE, pagamento RETIDO e valores consistentes; conclui e libera na mesma transação.
 - `criar_avaliacao`: exige cliente, pedido CONCLUIDO, nota válida e ausência de avaliação; usa o ID do pedido para unicidade.
 
-Todas as leituras da transação precedem as escritas. A função decorada pode ser repetida pelo SDK em caso de disputa: não enviar e-mails, cobrar valores ou alterar estado externo dentro dela. Os exemplos assumem que as referências e documentos foram validados na criação pela API. O fluxo completo de endpoints, alterações de perfil e cancelamentos ainda precisa ser implementado.
+Todas as leituras da transação precedem as escritas. A função decorada pode ser repetida pelo SDK em caso de disputa: não enviar e-mails, cobrar valores ou alterar estado externo dentro dela. A API implementa o fluxo completo e valida referências e participantes. O cancelamento é permitido somente antes do pagamento simulado. Perfil e verificação também são validados no servidor; a comissão desta versão é fixa em 10%.
 
 ## Publicação e validação
 
@@ -238,8 +238,8 @@ npx.cmd -y firebase-tools@latest deploy --only auth --project talenty-3e8cb
 python -m unittest discover -s database/tests -v
 ```
 
-Testes unitários cobrem valores monetários, arredondamento, permissões básicas, limites de avaliação, referências do seed e proteção contra gravação acidental em produção. Eles não comprovam concorrência ou atomicidade no serviço real. Falta executar testes de integração com emulador/credencial de desenvolvimento e validar o primeiro cadastro/login e a recuperação de senha com um e-mail do grupo.
+Testes unitários cobrem valores monetários, arredondamento, permissões, entradas inválidas, referências do seed e proteção contra gravação acidental em produção. Um teste de integração com três contas temporárias foi executado com sucesso no projeto real, validando autenticação, edição, favoritos, pedidos, conversa, pagamento, conclusão, avaliação e administração. Ele não é um teste de carga ou de concorrência. Consulte `backend/tests/test_live.py` e o [README do backend](../backend/README.md). A recuperação de senha com recebimento de e-mail deve ser conferida com um e-mail do grupo.
 
-O conjunto de regras foi compilado pelo Firebase durante a publicação. O backend continua pendente de integração: regras fechadas são intencionais, não devem ser abertas para fazer o feed acessar dados diretamente.
+O conjunto de regras foi compilado pelo Firebase durante a publicação. O backend já está integrado. Regras fechadas são intencionais e não devem ser abertas para fazer o feed acessar dados diretamente. Favoritos ficam na subcoleção `usuarios/{uid}/salvos/{servico_id}`, acessada apenas pela API.
 
 Referências oficiais: [transações](https://firebase.google.com/docs/firestore/manage-data/transactions), [emulador](https://firebase.google.com/docs/emulator-suite/connect_firestore), [Admin SDK](https://firebase.google.com/docs/admin/setup).

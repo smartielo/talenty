@@ -48,7 +48,7 @@ O **Talenty** conecta esses públicos: universitários anunciam serviços (sites
 
 ## 3. Arquitetura
 
-**Configuração realizada em 05/11/2026:** projeto `talenty-3e8cb`, app web `Talenty Web`, Authentication com e-mail/senha e banco Firestore `(default)` Standard em São Paulo (`southamerica-east1`). O faturamento não foi ativado. A configuração local do React está em `frontend/.env.local`; regras e índices ficam em `firebase/`. Veja o [modelo das coleções, seed e instruções](docs/firestore-modelo.md). O banco real ainda não recebeu os dados fictícios do seed, e o feed continua demonstrativo.
+**Configuração realizada em 05/11/2026:** projeto `talenty-3e8cb`, app web `Talenty Web`, Authentication com e-mail/senha e banco Firestore `(default)` Standard em São Paulo (`southamerica-east1`). O faturamento não foi ativado. A API e as páginas internas estão implementadas e integradas. O banco recebeu apenas o catálogo inicial (15 documentos), sem perfis ou anúncios fictícios. O feed usa serviços reais. Veja o [backend](backend/README.md), o [frontend](frontend/README.md) e o [modelo das coleções](docs/firestore-modelo.md).
 
 ```text
                     COMPUTADOR LOCAL
@@ -82,20 +82,20 @@ O **Talenty** conecta esses públicos: universitários anunciam serviços (sites
 6. Credenciais administrativas do Firebase ficam **somente no back-end**, fora do repositório. Nunca são enviadas ao navegador.
 7. Não há driver SQL, MySQL ou consultas SQL na arquitetura atual.
 
-### Organização de pastas planejada
+### Organização de pastas
 
 ```text
 talenty/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py                 # Inicialização do FastAPI
-│   │   ├── config.py               # Leitura de configurações
 │   │   ├── firebase.py             # Inicialização do Firebase Admin
 │   │   ├── dependencies.py         # Verificação de token e permissões
-│   │   ├── routers/                # Endpoints HTTP
+│   │   ├── routes.py               # Perfil, catálogo e serviços
+│   │   ├── order_routes.py         # Pedidos e conversa
 │   │   ├── services/               # Regras de negócio
-│   │   ├── repositories/           # Operações com o Firestore
-│   │   └── schemas/                # Validação de entrada e saída
+│   │   ├── common.py               # Operações pequenas compartilhadas
+│   │   └── schemas.py              # Validação de entrada
 │   ├── tests/                      # Testes com pytest
 │   ├── requirements.txt
 │   └── .env.example
@@ -108,12 +108,13 @@ talenty/
 │   ├── package.json
 │   └── .env.example
 ├── firebase/
-│   └── firestore.rules             # Política planejada: sem acesso direto a dados
+│   ├── firestore.rules             # Publicada: sem acesso direto a dados
+│   └── firestore.indexes.json
 ├── docs/                          # Arquitetura, testes e relatório
 └── README.md
 ```
 
-*Estrutura de referência: o front-end, a inicialização do Admin SDK, os exemplos de transações, o seed e as regras/índices do Firestore já existem. Os endpoints da API e a integração do feed com os dados reais ainda precisam ser implementados. Consulte também o [README do backend](backend/README.md).*
+As rotas consultam o Firestore diretamente, com funções pequenas para validações e transações. Veja o [roteiro de estudo e execução do backend](backend/README.md).
 
 ## 4. Modelagem de dados no Cloud Firestore
 
@@ -159,21 +160,21 @@ SOLICITADO → ORCADO → ACEITO → PAGO_RETIDO → ENTREGUE → CONCLUIDO
 CANCELADO: somente nas situações previstas pela regra de cancelamento.
 ```
 
-A API permitirá apenas transições coerentes e autorizadas para cada participante.
+A API permite apenas transições coerentes e autorizadas para cada participante. O cancelamento é permitido somente antes do pagamento simulado.
 
 ### Pagamento simulado
 
 - Não existe integração com banco, carteira ou gateway de pagamento real.
-- A comissão é configurada entre **10% e 15%** do valor do serviço.
+- Nesta versão, a API aplica comissão fixa de **10%** do valor total do serviço.
 - No pagamento são registrados valor total, comissão e valor do prestador.
 - Quando o cliente confirma a entrega, **concluir o pedido e liberar o pagamento simulado devem ocorrer na mesma transação do Firestore**. Se falhar, nenhuma das duas alterações deve ser efetivada.
 
 ### Controle de acesso
 
-- Apenas o dono pode editar ou excluir o próprio serviço.
+- Apenas o dono pode editar ou pausar o próprio serviço; a exclusão lógica preserva pedidos antigos.
 - Somente cliente e prestador envolvidos podem visualizar o pedido e as mensagens.
 - Somente o cliente autorizado pode avaliar o pedido concluído.
-- Apenas administradores gerenciam catálogo e concedem selo de verificação.
+- Apenas administradores concedem selo de verificação. O catálogo inicial é mantido pelo responsável no console/seed; a tela de edição de catálogo fica para uma próxima etapa.
 - O papel `ADMIN` nunca pode ser concedido pelo próprio usuário durante o cadastro.
 
 ## 6. Autenticação e autorização
@@ -207,27 +208,29 @@ A API permitirá apenas transições coerentes e autorizadas para cada participa
 - **Pagamento:** simulado internamente, sem transações financeiras reais.
 - **WhatsApp:** não faz parte do escopo obrigatório do MVP; considerar apenas depois de concluir as funções principais.
 
-## 8. Endpoints planejados
+## 8. Endpoints implementados
 
 Swagger/OpenAPI: **http://localhost:8000/docs**, após iniciar o back-end.
 
-| Recurso | Endpoints planejados | Acesso |
+| Recurso | Endpoints | Acesso |
 |---|---|---|
 | Autenticação | Cadastro/login no Firebase Authentication; `GET /auth/me` na API | Login pelo SDK; `/auth/me` autenticado |
-| Categorias | `GET /categorias`, `POST /categorias`, `PUT /categorias/{id}`, `DELETE /categorias/{id}` | Leitura pública; alterações por admin |
-| Tipos de serviço | `GET /tipos-servico`, `POST /tipos-servico`, `PUT /tipos-servico/{id}`, `DELETE /tipos-servico/{id}` | Leitura pública; alterações por admin |
+| Catálogo | `GET /catalogo` (instituições, categorias e tipos) | Leitura pública |
 | Serviços | `GET /servicos`, `GET /servicos/{id}`, `POST /servicos`, `PUT /servicos/{id}`, `DELETE /servicos/{id}` | Leitura pública; escrita pelo dono |
-| Prestadores | `GET /prestadores/{id}`, `POST /prestadores`, `PATCH /prestadores/{id}/verificar` | Verificação somente por admin |
-| Pedidos | `POST /pedidos`, `GET /pedidos`, `GET /pedidos/{id}`, `PATCH /pedidos/{id}/status` | Somente envolvidos |
-| Pagamento simulado | `POST /pedidos/{id}/pagamento`, `POST /pedidos/{id}/liberar` | Conforme regra de negócio |
+| Prestadores | `GET /prestadores/{id}`, `PUT /me/perfil`, `GET /prestadores/{id}/servicos` | Escrita apenas no próprio perfil |
+| Administração | `GET /admin/perfis`, `PATCH /admin/perfis/{uid}` | Verificação somente por admin |
+| Pedidos | `POST /pedidos`, `GET /pedidos`, `GET /pedidos/{id}`, `POST /pedidos/{id}/acoes` | Somente envolvidos |
+| Pagamento simulado | Ações `PAGAR` e `APROVAR` em `/pedidos/{id}/acoes` | Cliente e etapa validados |
 | Avaliações | `POST /pedidos/{id}/avaliacao` | Cliente autorizado |
-| Mensagens | `GET /pedidos/{id}/mensagens`, `POST /pedidos/{id}/mensagens` | Somente envolvidos; opcional no fim |
+| Mensagens | `GET /pedidos/{id}/mensagens`, `POST /pedidos/{id}/mensagens` | Somente envolvidos |
+| Favoritos | `GET /me/salvos`, `PUT /me/salvos/{id}`, `DELETE /me/salvos/{id}` | Privados por conta |
+| Meus anúncios | `GET /me/servicos` | Somente o dono |
 
-A API oferecerá métodos **GET, POST, PUT/PATCH e DELETE**, com validação, tratamento de erros e códigos HTTP adequados. O login/cadastro ocorre no Firebase; portanto, os endpoints antigos `POST /auth/cadastro` e `POST /auth/login` não são necessários nesta proposta.
+A API oferece métodos **GET, POST, PUT/PATCH e DELETE**, com validação, tratamento de erros e códigos HTTP adequados. O login/cadastro ocorre no Firebase. Consulte os corpos das requisições no Swagger e os detalhes no [README da API](backend/README.md).
 
 ## 9. Testes automatizados
 
-Os testes serão escritos em **pytest**, em `backend/tests/`, para cobrir:
+Os testes estão em **pytest**, em `backend/tests/`. Há 29 casos locais e um teste de integração opt-in, executado com sucesso no Firebase real, cobrindo:
 
 - Cálculo da comissão, arredondamento e divisão do valor.
 - Transições de status válidas e inválidas.
@@ -245,10 +248,10 @@ Com o ambiente configurado:
 ```bash
 # Executar os testes a partir da pasta do back-end
 cd backend
-pytest
+.venv/Scripts/python.exe -m pytest -q
 ```
 
-## 10. Instalação e execução local (planejada)
+## 10. Instalação e execução local
 
 ### Pré-requisitos
 
@@ -271,16 +274,16 @@ pytest
 
 ### Passo 2 – Back-end FastAPI
 
-**Etapa ainda planejada:** a base do Admin SDK e os exemplos de transações já existem, mas `app/main.py` e os endpoints ainda não foram implementados. O comando Uvicorn abaixo só poderá ser usado após essa implementação. Consulte o [README do backend](backend/README.md) para preparar o ambiente atual.
+Neste computador, o ambiente e o `.env` do backend já estão preparados. Para iniciar, na raiz: `cd backend` e depois `.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload`. Para um computador novo, siga o [README do backend](backend/README.md).
 
 No terminal, na pasta `backend/`:
 
 ```bash
 # Criar o ambiente virtual Python
-python -m venv venv
+python -m venv .venv
 
 # Ativar o ambiente no Windows PowerShell
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 
 # Instalar dependências definidas pelo projeto
 pip install -r requirements.txt
@@ -307,7 +310,7 @@ CORS_ORIGINS=http://localhost:5173
 
 > `GOOGLE_APPLICATION_CREDENTIALS` aponta para um arquivo de credenciais **privado**. O caminho de exemplo é ilustrativo e precisa ser substituído no `.env` local. O arquivo JSON não deve ser versionado ou copiado para `frontend/`.
 
-Quando implementada, a API estará em `http://localhost:8000`, com Swagger em `http://localhost:8000/docs`.
+A API fica em `http://127.0.0.1:8000`, com Swagger em `http://127.0.0.1:8000/docs`.
 
 ### Passo 3 – Front-end React
 
@@ -321,7 +324,7 @@ cd frontend
 npm install
 
 # Copiar a configuração de exemplo
-copy .env.example .env
+copy .env.example .env.local
 
 # Iniciar o Vite
 npm run dev
@@ -340,12 +343,12 @@ VITE_FIREBASE_PROJECT_ID=seu-projeto-firebase
 VITE_FIREBASE_APP_ID=id-publico-do-app-web
 ```
 
-A interface abre no endereço indicado pelo Vite, normalmente **http://127.0.0.1:5173**. As telas e o arquivo `frontend/.env.example` já existem. O login, o cadastro e a recuperação de senha estão preparados para o SDK do Firebase, mas precisam da configuração real do projeto para validação. O feed ainda usa dados ilustrativos; sua integração com a API e o Firestore está pendente. Consulte também o [README do front-end](frontend/README.md).
+A interface abre no endereço indicado pelo Vite, normalmente **http://127.0.0.1:5173**. O login, o cadastro e a recuperação usam Firebase; perfil, anúncios, favoritos, pedidos, mensagens e avaliações usam a API. A busca textual se limita aos anúncios carregados, e as conversas são atualizadas manualmente. Consulte o [README do front-end](frontend/README.md).
 
 ### Primeiro acesso
 
 - Criar um usuário pela interface de cadastro do Firebase Authentication.
-- A API deverá criar ou sincronizar seu documento `usuarios/{uid}` sem aceitar que o usuário escolha papel `ADMIN`.
+- A API cria o documento `usuarios/{uid}` no primeiro acesso autenticado, sem aceitar que o usuário escolha papel `ADMIN`.
 - Para testar funcionalidades administrativas, o grupo deverá estabelecer um administrador por procedimento seguro e controlado no back-end/console, documentando o processo. **Nunca expor uma rota pública para tornar uma conta administradora.**
 
 ## 11. Plano de desenvolvimento e validação
@@ -368,15 +371,16 @@ A interface abre no endereço indicado pelo Vite, normalmente **http://127.0.0.1
 - [x] Ideia, objetivos e regras gerais do Talenty definidos.
 - [x] Arquitetura **escolhida e autorizada pelo professor**: Firebase Authentication + Cloud Firestore + FastAPI + React local.
 - [x] Autorização informada pelos integrantes e registrada neste README em 05/11/2026.
-- [x] Telas de apresentação, login/cadastro, recuperação de senha, feed de demonstração e 404 implementadas em React.
+- [x] Telas de apresentação, login/cadastro, recuperação de senha, feed real e 404 implementadas em React.
 - [x] Login, cadastro e recuperação de senha preparados para integração com Firebase Authentication.
 - [x] Registrar o app web e configurar Firebase Authentication e Cloud Firestore em `talenty-3e8cb`.
 - [x] Preparar regras, índices, documentação das coleções, seed e exemplos de transações.
 - [x] Validar o build do front-end e os testes unitários do modelo/seed e das regras de domínio.
-- [ ] Implementar API FastAPI, Firebase Admin SDK e validações.
-- [ ] Validar a autenticação com o projeto Firebase real e integrar o front-end à API.
-- [ ] Aplicar o catálogo desejado no Firestore e validar as consultas com dados reais.
-- [ ] Implementar testes automatizados e testar fluxo completo.
+- [x] Implementar API FastAPI, Firebase Admin SDK e validações.
+- [x] Validar a autenticação com o projeto Firebase real e integrar o front-end à API.
+- [x] Aplicar o catálogo inicial no Firestore e validar as consultas com dados reais.
+- [x] Implementar testes automatizados e testar o fluxo completo da API.
+- [x] Implementar perfil, anúncios, favoritos, pedidos, conversa, avaliação e verificação de estudantes no frontend.
 - [ ] Documentar resultados, capturas, endpoints e evidências de testes.
 
 Os scripts e a modelagem SQL produzidos anteriormente **não fazem parte da implementação atual** e não devem ser apresentados como recursos em execução no Firebase.
@@ -411,7 +415,7 @@ As exigências conhecidas anteriormente para Aplicações Digitais incluíam API
 
 **Limitações, mudanças e correções observadas:**
 
-- Houve uma proposta inicial com MySQL, JWT próprio e bcrypt; o grupo decidiu usar Firebase Authentication e Cloud Firestore e informou a autorização do professor. O front-end está preparado para autenticação com Firebase; a configuração real, a API e a persistência ainda precisam ser implementadas ou validadas.
+- Houve uma proposta inicial com MySQL, JWT próprio e bcrypt; o grupo decidiu usar Firebase Authentication e Cloud Firestore e informou a autorização do professor. A API, a persistência e as páginas internas foram implementadas, com testes locais e integração validada no Firebase real.
 - Os scripts SQL anteriores foram testados em MariaDB 10.11, não em MySQL 8; agora estão fora do escopo de implementação escolhido.
 - Os hashes de senha dos dados SQL de exemplo eram fictícios e não serviam para login real; esses dados não serão usados na autenticação Firebase.
 - Uma resposta anterior da IA confundiu a ordem de datas de entrega das disciplinas; o grupo corrigiu a informação.
