@@ -21,8 +21,3 @@ def filtrar(query, campo, valor):
 
 def listar(query, limite=50):
     return [{'id': s.id, **s.to_dict()} for s in query.limit(limite).stream()]
-
-
-def participante(pedido, uid):
-    if uid not in (pedido['cliente_uid'], pedido['prestador_uid']):
-        raise HTTPException(403, 'Você não participa deste pedido.')

@@ -1,15 +1,14 @@
 """Inicialização do Admin SDK. Não reutiliza nem extrai tokens da Firebase CLI."""
 import os
 from functools import lru_cache
+from .config import carregar_configuracao
 
 
 @lru_cache
 def get_firebase_app():
-    from dotenv import load_dotenv
     import firebase_admin
-    from pathlib import Path
 
-    load_dotenv(Path(__file__).resolve().parents[1] / '.env')
+    carregar_configuracao()
     project = os.environ.get('FIREBASE_PROJECT_ID')
     if not project:
         raise RuntimeError('Defina FIREBASE_PROJECT_ID no backend/.env.')

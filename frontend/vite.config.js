@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({ plugins: [react()] });
+// O frontend e o backend leem o mesmo arquivo .env, na raiz do projeto.
+export default defineConfig({ envDir: '..', plugins: [react()] });

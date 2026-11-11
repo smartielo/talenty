@@ -14,8 +14,8 @@ export default function SignupForm() {
     if (data.get('password') !== data.get('confirm-password')) { setError('As senhas precisam ser iguais.'); return; }
     setError(''); setBusy(true);
     try {
-      const result = await register(data.get('name'), data.get('email'), data.get('password'));
-      window.location.assign(result.profilePending ? '/home?perfil=pendente' : '/home');
+      await register(data.get('name'), data.get('email'), data.get('password'));
+      window.location.assign('/home');
     } catch (signupError) { setError(authErrorMessage(signupError)); }
     finally { setBusy(false); }
   }
@@ -24,7 +24,7 @@ export default function SignupForm() {
     <div className="form-field"><label htmlFor="signup-email">E-mail</label><input id="signup-email" name="email" type="email" autoComplete="email" placeholder="voce@exemplo.com" required maxLength={254} /></div>
     <PasswordField autoComplete="new-password" minLength={8} hint="Use pelo menos 8 caracteres. Combine letras, números e símbolos." />
     <PasswordField id="confirm-password" label="Confirmar senha" autoComplete="new-password" minLength={8} />
-    <label className="checkbox-label signup-consent"><input type="checkbox" required />Entendo que esta é uma plataforma acadêmica com pagamentos simulados.</label>
+    <label className="checkbox-label signup-consent"><input type="checkbox" required />Entendo que esta é uma plataforma acadêmica de demonstração.</label>
     {error && <p className="form-message form-error" role="alert">{error}</p>}
     <button className="button button-primary auth-submit" type="submit" disabled={busy}>{busy ? 'Criando sua conta…' : 'Criar minha conta'}<Icon name="arrow" /></button>
   </form>;

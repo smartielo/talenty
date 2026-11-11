@@ -12,13 +12,6 @@ def criar_dados():
     def add(collection, document_id, **data):
         records.append((collection, document_id, {**data, 'demonstracao': True, 'criado_em': now}))
 
-    for document_id, name, city, state in [
-        ('unisagrado', 'UNISAGRADO', 'Bauru', 'SP'),
-        ('ufpe', 'UFPE', 'Recife', 'PE'),
-        ('usp', 'USP', 'São Carlos', 'SP'),
-    ]:
-        add('instituicoes', document_id, nome=name, cidade=city, estado=state, ativo=True)
-
     categories = [
         ('sites', 'Sites', 'Criação de sites e portfólios', 14900, 'SERVICO'),
         ('design', 'Design', 'Identidade visual e peças gráficas', 7900, 'SERVICO'),
@@ -32,20 +25,6 @@ def criar_dados():
         add('tipos_servico', f'{category_id}-basico', categoria_id=category_id, nome=f'{name} básico',
             descricao=description, preco_referencia_centavos=price, unidade=unit, ativo=True)
 
-    creators = [
-        ('demo_ana', 'Ana Oliveira', 'unisagrado', 'Design', 'Bauru', 'SP', 'design', 'Identidade visual para sua marca', 17900),
-        ('demo_pedro', 'Pedro Santos', 'ufpe', 'Engenharia de Computação', 'Recife', 'PE', 'sites', 'Seu portfólio na web', 24900),
-        ('demo_lucas', 'Lucas Ferreira', 'usp', 'Matemática', 'São Carlos', 'SP', 'monitorias', 'Monitoria de Cálculo I', 3900),
-    ]
-    for uid, name, institution, course, city, state, category, title, price in creators:
-        add('usuarios', uid, uid=uid, nome=name, email=f'{uid}@example.com', papel='USUARIO', ativo=True, atualizado_em=now)
-        add('perfis_prestadores', uid, usuario_uid=uid, instituicao_id=institution, curso=course, cidade=city,
-            estado=state, nome_publico=name, bio='Perfil fictício para demonstração acadêmica.', verificado=False,
-            verificado_por=None, verificado_em=None, atualizado_em=now)
-        add('servicos', f'{uid}-{category}', prestador_uid=uid, categoria_id=category,
-            tipo_servico_id=f'{category}-basico', instituicao_id=institution, cidade=city, estado=state,
-            titulo=title, descricao='Anúncio ilustrativo. Não representa uma contratação real.', preco_centavos=price,
-            unidade='HORA' if category == 'monitorias' else 'SERVICO', prazo_dias=7, ativo=True, atualizado_em=now)
     return records
 
 
@@ -67,7 +46,6 @@ def main(argv=None):
     parser.add_argument('--apply', action='store_true', help='Gravar o plano; o padrão é somente visualizar.')
     parser.add_argument('--production', action='store_true', help='Permitir gravação no projeto real informado.')
     parser.add_argument('--project', help='Obrigatório ao usar --production.')
-    parser.add_argument('--catalog-only', action='store_true', help='Apenas instituições, categorias e tipos; sem perfis ou serviços fictícios.')
     args = parser.parse_args(argv)
     if args.production and not args.project:
         parser.error('--production exige --project explícito.')
@@ -79,8 +57,6 @@ def main(argv=None):
     if args.apply and not args.production and not os.environ.get('FIRESTORE_EMULATOR_HOST'):
         parser.error('Defina FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 para gravar no emulador.')
     records = criar_dados()
-    if args.catalog_only:
-        records = [record for record in records if record[0] in {'instituicoes', 'categorias', 'tipos_servico'}]
     print(json.dumps({'projeto': project, 'destino': 'nuvem' if args.production else 'emulador',
                       'modo': 'gravar' if args.apply else 'somente plano',
                       'documentos': dict(Counter(record[0] for record in records)),

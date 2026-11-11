@@ -31,12 +31,12 @@ export async function register(name, email, password) {
   const { auth, sdk } = await getAuthClient();
   await sdk.setPersistence(auth, sdk.browserLocalPersistence);
   const credential = await sdk.createUserWithEmailAndPassword(auth, email.trim(), password);
-  // Somente identidade no Authentication. O perfil de prestador será criado pela API.
+  // O nome fica no Firebase Authentication e é copiado pela API para o anúncio.
   try {
     await sdk.updateProfile(credential.user, { displayName: name.trim() });
   } catch {
     // A conta já existe: não repetir o cadastro por uma falha ao salvar o nome.
-    return { ...credential, profilePending: true };
+    return credential;
   }
   return credential;
 }

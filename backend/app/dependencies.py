@@ -43,9 +43,3 @@ def usuario(credentials: HTTPAuthorizationCredentials | None = Depends(bearer), 
     if not data.get('ativo'):
         raise HTTPException(403, 'Conta desativada.')
     return {**data, 'uid': uid}
-
-
-def administrador(user=Depends(usuario)):
-    if user.get('papel') != 'ADMIN':
-        raise HTTPException(403, 'Acesso exclusivo da administração.')
-    return user
