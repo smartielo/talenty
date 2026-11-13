@@ -11,7 +11,7 @@ def get_firebase_app():
     carregar_configuracao()
     project = os.environ.get('FIREBASE_PROJECT_ID')
     if not project:
-        raise RuntimeError('Defina FIREBASE_PROJECT_ID no backend/.env.')
+        raise RuntimeError('Defina FIREBASE_PROJECT_ID no .env da raiz do projeto.')
     try:
         return firebase_admin.get_app('talenty-backend')
     except ValueError:

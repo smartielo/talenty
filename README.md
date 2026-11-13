@@ -51,7 +51,6 @@ Copy-Item .env.example .env
 
 Abra `.env` e preencha o projeto, o caminho da credencial JSON e a configuração pública do aplicativo Web.
 O caminho da credencial pode usar `/` no Windows.
-
 Nesta branch, o `.env` deve ficar **na raiz**; não use `backend/.env` ou `.env.local` para essa configuração.
 
 ### 3. Iniciar o backend
