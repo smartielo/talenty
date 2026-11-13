@@ -31,4 +31,6 @@ cd backend
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-A configuração fica em `../.env`. O arquivo `GOOGLE_APPLICATION_CREDENTIALS` pode usar caminho relativo à raiz do projeto.
+A configuração fica em `.env` na raiz do projeto (`../.env` a partir desta pasta). O arquivo
+`GOOGLE_APPLICATION_CREDENTIALS` deve apontar para a chave privada JSON do Firebase Admin,
+preferencialmente fora do repositório. Consulte o README da raiz para o passo a passo completo.

@@ -15,26 +15,70 @@
 4. O feed permite pesquisar por título, descrição ou autor e filtrar por categoria.
 5. Em **Meus anúncios**, somente o proprietário pode excluir seu anúncio.
 
-## Executar
+## Como configurar e rodar o projeto
 
-Copie `.env.example` para `.env` na raiz e preencha as configurações. As variáveis públicas do frontend e o caminho da credencial privada do backend ficam centralizados nesse arquivo. O JSON do Firebase Admin permanece separado e nunca deve ser versionado.
+### Pré-requisitos
 
-Backend:
+- Windows com **Python 3.11 ou superior**;
+- **Node.js e npm**;
+- acesso à internet;
+- um projeto Firebase com **Authentication por e-mail/senha** e **Cloud Firestore** ativados.
+
+### 1. Configurar o Firebase
+
+No Firebase Console:
+
+1. ative **Authentication → Sign-in method → Email/Password**;
+2. crie o banco em **Firestore Database**;
+3. registre um aplicativo Web e copie a configuração pública;
+4. em **Configurações do projeto → Contas de serviço**, gere uma nova chave privada.
+
+Salve o JSON privado fora do repositório, por exemplo:
+
+```text
+C:\vscode\firebase\credencial-firebase.json
+```
+
+Nunca coloque esse JSON em `frontend/`, em uma variável `VITE_` ou no Git.
+
+### 2. Criar o arquivo de ambiente
+
+Na raiz do projeto, copie o modelo:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Abra `.env` e preencha o projeto, o caminho da credencial JSON e a configuração pública do aplicativo Web.
+O caminho da credencial pode usar `/` no Windows.
+
+Nesta branch, o `.env` deve ficar **na raiz**; não use `backend/.env` ou `.env.local` para essa configuração.
+
+### 3. Iniciar o backend
+
+Em um terminal:
 
 ```powershell
 cd backend
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Frontend, em outro terminal:
+Confirme em <http://127.0.0.1:8000/health>. O resultado esperado é `status: ok`.
+
+### 4. Iniciar o frontend
+
+Em outro terminal, mantenha o backend aberto e execute:
 
 ```powershell
 cd frontend
-npm install
-npm run dev
+npm.cmd install
+npm.cmd run dev
 ```
+
+Abra o endereço exibido pelo Vite, normalmente <http://127.0.0.1:5173>.
+Se alterar o `.env`, reinicie o backend e o Vite. Os dois processos precisam estar rodando ao mesmo tempo.
 
 Endereços locais:
 
