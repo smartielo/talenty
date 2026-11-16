@@ -58,7 +58,25 @@ Senhas e tokens nunca são armazenados nessa coleção.
 | `preco_centavos` | inteiro positivo | formulário |
 | `unidade` | `SERVICO` ou `HORA` | tipo do catálogo |
 | `prazo_dias` | inteiro de 1 a 365 | formulário |
+| `telefone_contato` | string numérica com DDI 55 | formulário; resposta privada |
 | `ativo` | boolean | servidor |
+| `criado_em` | timestamp | servidor |
+| `atualizado_em` | timestamp | servidor |
+
+`telefone_contato` nunca faz parte da representação pública do anúncio. A API o devolve somente ao proprietário ou ao cliente cujo interesse esteja com status `ACEITO`.
+
+### interesses/{hash}
+
+O ID é um hash determinístico de `servico_id` e `cliente_uid`, impedindo interesses duplicados para a mesma pessoa e anúncio.
+
+| Campo | Tipo | Origem |
+|---|---|---|
+| `servico_id` | string | rota validada |
+| `prestador_uid` | string | anúncio |
+| `cliente_uid` | string | token autenticado |
+| `cliente_nome` | string | conta autenticada |
+| `cliente_email` | string | conta autenticada; visível ao anunciante |
+| `status` | `PENDENTE`, `ACEITO` ou `RECUSADO` | servidor/anunciante |
 | `criado_em` | timestamp | servidor |
 | `atualizado_em` | timestamp | servidor |
 
@@ -66,6 +84,8 @@ Senhas e tokens nunca são armazenados nessa coleção.
 
 ```text
 usuarios 1 ---- N servicos
+usuarios 1 ---- N interesses (cliente)
+servicos 1 ---- N interesses
 categorias 1 -- N tipos_servico
 categorias 1 -- N servicos
 tipos_servico 1 -- N servicos
@@ -75,4 +95,4 @@ O Firestore não cria chaves estrangeiras. A API verifica a existência e a comp
 
 ## Exclusão
 
-O anúncio é excluído definitivamente somente depois que a API compara `prestador_uid` com o UID do token. Como o MVP não possui pedidos nem histórico de contratação, não há dependência que exija exclusão lógica.
+O anúncio é excluído definitivamente somente depois que a API compara `prestador_uid` com o UID do token. Os interesses ligados ao anúncio também são removidos para não manter dados pessoais sem finalidade.

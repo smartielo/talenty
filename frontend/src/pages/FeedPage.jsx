@@ -15,6 +15,7 @@ export default function FeedPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    // Catálogo e anúncios são independentes, então são buscados em paralelo.
     let active = true;
     Promise.all([api("/catalogo"), api("/servicos")])
       .then(([catalogData, services]) => {
@@ -32,6 +33,8 @@ export default function FeedPage() {
   }, []);
 
   const filtered = useMemo(() => {
+    // A busca é feita no navegador neste MVP. Em uma base grande, pesquisa e
+    // paginação devem migrar para o backend ou para um serviço de busca.
     const term = search.toLocaleLowerCase("pt-BR");
     return items.filter((item) => {
       const matchesCategory = !category || item.categoria_id === category;

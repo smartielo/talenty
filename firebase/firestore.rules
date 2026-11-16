@@ -1,7 +1,7 @@
 rules_version = '2';
 // Protótipo para a arquitetura servidor-exclusivo; modelo em docs/firestore-modelo.md.
 // Coleções: instituicoes, usuarios/{uid}, perfis_prestadores/{uid}, categorias,
-// tipos_servico, servicos, pedidos, pagamentos/{pedido_id}, avaliacoes/{pedido_id}, mensagens.
+// tipos_servico, servicos e interesses. O telefone de contato é filtrado pela API.
 // Não há exceções para usuários autenticados, donos, administradores ou subcoleções.
 // Senhas pertencem ao Firebase Authentication; nunca aos documentos do Firestore.
 service cloud.firestore {

@@ -34,6 +34,10 @@ button, a { touch-action: manipulation; }
 .button:hover { transform: translateY(-2px); }
 .button-primary { background: var(--primary); color: white; }
 .button-primary:hover { background: #003988; }
+.button-secondary { background: #e7f0f5; color: var(--deep); }
+.button-secondary:hover { background: #d7e7ef; }
+.button-whatsapp { background: #168c4f; color: white; }
+.button-whatsapp:hover { background: #10723f; }
 .button-ink { background: var(--ink); color: white; }
 .button-deep { background: var(--deep); color: white; }
 .button-outline { border: 2px solid var(--deep); background: white; }

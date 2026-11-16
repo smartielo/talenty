@@ -9,6 +9,8 @@ import "../pages/Workspace.css";
 const links = [
   ["/home", "home", "Anúncios"],
   ["/meus-servicos", "plus", "Meus anúncios"],
+  ["/meus-interesses", "heart", "Meus interesses"],
+  ["/perfil", "user", "Perfil"],
 ];
 
 export default function AppLayout({ children }) {
@@ -25,6 +27,8 @@ export default function AppLayout({ children }) {
   }
 
   return (
+    // Cabeçalho, menu lateral e promoção são compartilhados pelas páginas
+    // internas; somente o conteúdo recebido em children muda.
     <div className="feed-page">
       <header className="feed-header">
         <div className="feed-header-inner">
@@ -42,7 +46,7 @@ export default function AppLayout({ children }) {
             <a href="/servicos/novo" aria-label="Criar anúncio">
               <Icon name="plus" />
             </a>
-            <a className="workspace-avatar" href={user ? "/meus-servicos" : "/login"}>
+            <a className="workspace-avatar" href={user ? "/perfil" : "/login"}>
               {user ? (user.displayName || "T")[0].toUpperCase() : <Icon name="user" />}
             </a>
           </div>
@@ -90,7 +94,7 @@ export default function AppLayout({ children }) {
               Quero anunciar →
             </a>
           </div>
-          <a href="/">Conheça a Talenty →</a>
+          <a className="workspace-about-link" href="/">Conheça a Talenty <span>→</span></a>
         </aside>
       </div>
 
@@ -107,6 +111,8 @@ export default function AppLayout({ children }) {
 }
 
 export function Private({ children }) {
+  // Private protege a experiência da tela. A segurança real continua no
+  // backend, que também exige e valida o token em cada rota protegida.
   const { user, loading, error } = useAuth();
   if (loading) return <p role="status">Carregando sua conta…</p>;
   if (error) return <p className="workspace-error" role="alert">Não foi possível verificar sua sessão.</p>;
@@ -123,6 +129,7 @@ export function Private({ children }) {
 }
 
 export function Notice({ error, message }) {
+  // Componente pequeno para manter mensagens de erro/sucesso consistentes.
   return (
     <>
       {error ? <p className="workspace-error" role="alert">{error}</p> : null}

@@ -5,7 +5,7 @@
 > **Arquitetura atual escolhida pelo grupo:** React + Vite (local), FastAPI (local), Firebase Authentication e Cloud Firestore (nuvem).
 
 **Integrantes:** Gabriel Martielo e João Diniz  
-**Objetivo do MVP:** demonstrar cadastro, login, criação, pesquisa e exclusão de anúncios de serviços.
+**Objetivo do MVP:** demonstrar cadastro, login, criação e pesquisa de anúncios, interesse de clientes e liberação segura do contato.
 
 ## Fluxo principal
 
@@ -13,7 +13,9 @@
 2. O Firebase Authentication confirma a identidade.
 3. O usuário publica um anúncio sem precisar preencher um perfil complementar.
 4. O feed permite pesquisar por título, descrição ou autor e filtrar por categoria.
-5. Em **Meus anúncios**, somente o proprietário pode excluir seu anúncio.
+5. O cliente demonstra interesse sem visualizar o telefone do anunciante.
+6. Em **Meus anúncios**, o proprietário vê a quantidade de interessados e aceita ou recusa cada pessoa.
+7. Somente após o aceite, o cliente recebe um botão para conversar com o anunciante pelo WhatsApp.
 
 ## Como configurar e rodar o projeto
 
@@ -93,11 +95,37 @@ frontend/src/services/api.js        chamadas HTTP e envio do token
 frontend/src/pages/FeedPage.jsx     listagem, filtro e pesquisa
 frontend/src/pages/ServiceFormPage.jsx  criação do anúncio
 frontend/src/pages/MyServicesPage.jsx  exclusão do anúncio
+frontend/src/pages/InterestsPage.jsx   acompanhamento dos interesses e WhatsApp
+frontend/src/pages/ProfilePage.jsx     perfil e indicadores da conta
 backend/app/dependencies.py         validação do token e criação da conta
-backend/app/routes.py               catálogo e CRUD reduzido de anúncios
+backend/app/routes.py               catálogo, anúncios, perfil e interesses
 backend/app/schemas.py              validação dos dados recebidos
 backend/app/config.py               leitura do .env único
 ```
+
+## Roteiro técnico para apresentação
+
+Use esta sequência para explicar o projeto sem precisar decorar cada arquivo:
+
+1. **React/Vite:** renderiza as páginas, mantém os estados da interface e chama a API.
+2. **Firebase Authentication:** realiza cadastro/login e entrega um ID token assinado.
+3. **FastAPI:** recebe o token no cabeçalho `Authorization`, identifica o usuário e aplica as regras de negócio.
+4. **Cloud Firestore:** armazena usuários, catálogo, anúncios e manifestações de interesse.
+5. **Privacidade:** a versão pública do anúncio nunca contém o telefone; essa filtragem acontece no backend.
+6. **Aceite:** o anunciante muda o interesse para `ACEITO`; somente então a API inclui `whatsapp_url` na resposta daquele cliente.
+7. **Autorização:** criar, aceitar, recusar ou excluir exige token, e o backend compara o UID autenticado com o dono do registro.
+
+Fluxo resumido:
+
+```text
+Navegador -> Firebase Authentication -> ID token
+Navegador -> FastAPI + ID token -> validação -> Firestore
+Firestore -> FastAPI filtra dados privados -> Navegador
+```
+
+### Limite de 100 registros
+
+O uso de `listar(query, 100)` limita apenas uma consulta para proteger o MVP de leituras muito grandes. O Firestore pode armazenar mais registros, mas a interface atual mostra no máximo 100 por listagem. A evolução planejada é usar paginação com cursor e contagens agregadas.
 
 ## Segurança mantida
 
@@ -106,6 +134,8 @@ backend/app/config.py               leitura do .env único
 - a API obtém o UID do token e nunca confia em um UID enviado pelo formulário;
 - campos extras são recusados pelo Pydantic;
 - a exclusão confere se o usuário autenticado é dono do anúncio;
+- o telefone nunca é incluído nas respostas públicas de anúncios;
+- somente o cliente aceito recebe o telefone e o link do WhatsApp;
 - o frontend não acessa o Firestore diretamente.
 
 ## Testes

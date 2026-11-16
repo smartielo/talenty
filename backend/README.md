@@ -8,7 +8,7 @@ API FastAPI do MVP. Ela verifica o Firebase ID token e usa o Firebase Admin SDK 
 2. `app/main.py`: cria a API e configura o CORS.
 3. `app/dependencies.py`: autentica o usuário e cria `usuarios/{uid}` no primeiro acesso.
 4. `app/schemas.py`: aceita apenas os campos do anúncio.
-5. `app/routes.py`: contém catálogo, listagem, criação e exclusão.
+5. `app/routes.py`: contém catálogo, anúncios, perfil e manifestações de interesse.
 
 ## Rotas
 
@@ -20,7 +20,13 @@ API FastAPI do MVP. Ela verifica o Firebase ID token e usa o Firebase Admin SDK 
 | `GET /servicos/{id}` | detalhar anúncio | público |
 | `GET /auth/me` | confirmar a conta | autenticado |
 | `GET /me/servicos` | listar anúncios próprios | autenticado |
+| `GET /me/perfil` | consultar o próprio perfil | autenticado |
+| `PATCH /me/perfil` | atualizar o próprio nome | autenticado |
+| `GET /me/interesses` | acompanhar interesses enviados | autenticado |
 | `POST /servicos` | criar anúncio | autenticado |
+| `POST /servicos/{id}/interesses` | demonstrar interesse | autenticado |
+| `GET /me/servicos/{id}/interesses` | listar interessados do anúncio | proprietário |
+| `PATCH /me/servicos/{id}/interesses/{interesse}` | aceitar ou recusar | proprietário |
 | `DELETE /servicos/{id}` | excluir anúncio próprio | autenticado |
 
 ## Executar e testar

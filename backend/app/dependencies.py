@@ -1,4 +1,8 @@
-"""A identidade vem do Firebase, nunca de um UID enviado no formulário."""
+"""Dependências compartilhadas de banco e autenticação.
+
+O ponto principal de segurança é: a identidade vem do Firebase ID token,
+nunca de um UID enviado pelo formulário ou pela URL.
+"""
 import logging
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -10,6 +14,7 @@ bearer = HTTPBearer(auto_error=False)
 
 
 def banco():
+    """Entrega o cliente Firestore às rotas por injeção de dependência."""
     try:
         return get_firestore()
     except Exception:
@@ -18,6 +23,12 @@ def banco():
 
 
 def usuario(credentials: HTTPAuthorizationCredentials | None = Depends(bearer), db=Depends(banco)):
+    """Valida o Bearer token e devolve o usuário autenticado do Firestore.
+
+    Na primeira chamada autenticada, a conta é materializada em ``usuarios``.
+    Isso mantém o Firebase Authentication responsável pela senha e o Firestore
+    responsável pelos dados usados pela aplicação.
+    """
     if not credentials or credentials.scheme.lower() != 'bearer':
         raise HTTPException(401, 'Entre na sua conta para continuar.', headers={'WWW-Authenticate': 'Bearer'})
     try:
@@ -31,6 +42,8 @@ def usuario(credentials: HTTPAuthorizationCredentials | None = Depends(bearer), 
     ref = db.collection('usuarios').document(uid)
     snapshot = ref.get()
     if not snapshot.exists:
+        # A criação é idempotente: duas requisições simultâneas podem tentar
+        # criar o mesmo usuário, por isso AlreadyExists é tratado abaixo.
         data = {'uid': uid, 'nome': claims.get('name', 'Estudante'), 'email': claims.get('email', ''),
                 'papel': 'USUARIO', 'ativo': True, 'criado_em': firestore.SERVER_TIMESTAMP,
                 'atualizado_em': firestore.SERVER_TIMESTAMP}

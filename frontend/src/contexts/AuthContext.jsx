@@ -9,6 +9,8 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // onAuthStateChanged acompanha login, logout e restauração da sessão salva
+    // pelo Firebase. A inscrição é removida quando o provider sai da tela.
     if (!isAuthConfigured) return;
     let cancelled = false;
     let unsubscribe;
@@ -27,4 +29,5 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={{ user, loading, error, configured: isAuthConfigured }}>{children}</AuthContext.Provider>;
 }
 
+// Componentes chamam useAuth() sem precisar importar o SDK do Firebase.
 export function useAuth() { return useContext(AuthContext); }

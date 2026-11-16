@@ -5,6 +5,8 @@ import { api, cents } from "../services/api.js";
 import usePageTitle from "../hooks/usePageTitle.js";
 
 function Form() {
+  // O catálogo vem do backend para garantir que categoria e tipo usados no
+  // formulário são os mesmos que serão validados na criação do anúncio.
   const catalog = useApi("/catalogo");
   const [form, setForm] = useState({
     titulo: "",
@@ -13,6 +15,7 @@ function Form() {
     tipo_servico_id: "",
     preco: "",
     prazo_dias: "7",
+    telefone_contato: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,6 +29,8 @@ function Form() {
     setBusy(true);
     setError("");
     try {
+      // O campo visual "preco" aceita vírgula; antes do envio ele é convertido
+      // para centavos inteiros, que é o formato esperado pela API.
       const { preco, ...data } = form;
       await api("/servicos", {
         method: "POST",
@@ -93,6 +98,23 @@ function Form() {
               <input name="prazo_dias" type="number" min="1" max="365" required value={form.prazo_dias} onChange={field} />
             </label>
           </div>
+          <label>
+            Celular com WhatsApp
+            <input
+              name="telefone_contato"
+              value={form.telefone_contato}
+              onChange={field}
+              required
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="(14) 99999-9999"
+              minLength={10}
+              maxLength={20}
+            />
+            <span className="workspace-field-help">
+              O número fica privado e só será liberado para clientes que você aceitar.
+            </span>
+          </label>
           <Notice error={error} />
           <button className="button button-primary" disabled={busy}>{busy ? "Publicando…" : "Publicar anúncio"}</button>
         </form>
